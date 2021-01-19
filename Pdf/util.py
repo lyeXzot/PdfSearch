@@ -5,7 +5,7 @@ from pdfminer.high_level import extract_text
 
 def get_all_PdfPath(root):
     """
-    获取root文件下所有pdf文件目录
+    获取root文件下所有pdf文件路径
     :param root: 查找根目录
     :return: 所有pdf文件路径的list
     """

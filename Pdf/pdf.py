@@ -1,6 +1,3 @@
-from ElasticSearch import connect
-
-
 class PDF:
     def __init__(self, content, path):
         self.text = content
