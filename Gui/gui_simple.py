@@ -1,6 +1,7 @@
 import tkinter
 import tkinter.filedialog
 from Search.search import search
+import os
 
 root = tkinter.Tk()
 path = tkinter.StringVar(root, value='')
@@ -9,20 +10,23 @@ result = tkinter.StringVar(root, value='')
 
 
 def DoSearch(thePath, text):
-    print("len", len(thePath), len(text))
     if thePath == '':
         result.set("请输入搜索路径")
     elif text == '':
         result.set("请输入搜索内容")
     else:
-        result.set("do searching...")
-        search(thePath, text)
+        if os.path.exists(thePath):
+            result.set("do searching...")
+            temp = search(thePath, text)
+            result.set(temp)
+        else:
+            result.set("路径错误")
 
 
 def GetSearchPath():
-    temp = tkinter.filedialog.askopenfilenames()
-    if temp != '':
-        path.set(temp[0])
+    temp = tkinter.filedialog.askdirectory()
+    if temp:
+        path.set(temp)
 
 
 inputPathLabel = tkinter.Label(root, text="输入搜索目录:")
