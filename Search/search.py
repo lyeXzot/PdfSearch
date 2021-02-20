@@ -3,6 +3,7 @@ from ElasticSearch.elasticSearch import ElasticSearch
 
 import time
 
+
 def search(root_path, keyword):
     """
     搜索root_path下pdf文件
@@ -26,6 +27,7 @@ def search(root_path, keyword):
     result = es.search(Name, keyword)
     print(result)
     es.delete(Name)
+    return result
 
 
 if __name__ == '__main__':
