@@ -1,6 +1,8 @@
-from utils import CentralWindow
 import tkinter as tk
 from tkinter.ttk import Button
+
+from Gui.utils import CentralWindow
+
 
 class AboutPdfSearch(CentralWindow):
     def __init__(self, master):
@@ -18,7 +20,7 @@ class AboutPdfSearch(CentralWindow):
         self.bind("<Return>", lambda event=None: self.ok_button.invoke())
         self.bind("<Escape>", lambda event=None: self.ok_button.invoke())
 
-        self.content_text = tk.Text(self,  bg="white", fg="black")
+        self.content_text = tk.Text(self, bg="white", fg="black")
         self.content_text.insert(tk.END, "Developed by ...\nStudents of HUST")
         self.content_text.pack(side=tk.TOP, fill=tk.X,
                                expand=1, padx=10, pady=5)

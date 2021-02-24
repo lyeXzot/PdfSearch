@@ -2,6 +2,7 @@ import model_tab
 from model_tab import ModelTab
 import tkinter as tk
 
+
 class FileViewTab(ModelTab):
     def __init__(self, master):
         super().__init__(master)
@@ -15,7 +16,7 @@ class FileViewTab(ModelTab):
         }
         self.set_top_frame(temp_top)
 
-        temp_central={
-            "":80
+        temp_central = {
+            "": 80
         }
         self.set_central_frame(temp_central)

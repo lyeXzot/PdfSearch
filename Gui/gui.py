@@ -1,13 +1,11 @@
 import tkinter as tk
-from tkinter.ttk import Notebook, Label, Style, Progressbar, Button
-from tkinter import messagebox as msg, filedialog,Frame
-from tkinter.font import BOLD, Font
+from tkinter import messagebox as msg, filedialog, Frame
+from tkinter.ttk import Notebook, Label, Style, Progressbar
 
-from model_tab import ModelTab
-from word_list_tab import WordListTab
-from file_view_tab import FileViewTab
-from concordance_tab import ConcordanceTab
-from about_pdfsearch import AboutPdfSearch
+from Gui.about_pdfsearch import AboutPdfSearch
+from Gui.concordance_tab import ConcordanceTab
+from Gui.file_view_tab import FileViewTab
+from Gui.word_list_tab import WordListTab
 
 
 class PdfSearch(tk.Tk):
@@ -69,7 +67,8 @@ class PdfSearch(tk.Tk):
         self.total_num_label = Label(
             self.left_frame, text="Total No.", style="Bold10.TLabel")
         self.total_num_value_label = Label(
-            self.left_frame, textvar=self.total_file_num_var, background="white")
+            self.left_frame, textvar=self.total_file_num_var,
+            background="white")
         self.file_processed_label = Label(
             self.left_frame, text="File Processed", style="Bold10.TLabel")
         self.file_processed_progressbar = Progressbar(
@@ -105,7 +104,7 @@ class PdfSearch(tk.Tk):
             msg.showerror("Wrong Filetype", "Please select a pdf file")
             temp_file = filedialog.askopenfilename()
 
-        if(temp_file):
+        if (temp_file):
             self.path.set(temp_file)
 
     def open_dir(self, event=None):

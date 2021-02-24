@@ -18,14 +18,17 @@ class ElasticSearch:
         self.es.indices.delete(index=indexName, ignore=400)
 
     def upload(self, indexName, pdf):
-        self.es.index(index=indexName, body={"path": pdf.path, "content": pdf.text, "timestamp": datetime.now()})
+        self.es.index(index=indexName,
+                      body={"path": pdf.path, "content": pdf.text,
+                            "timestamp": datetime.now()})
 
     def bulk(self, indexName, PDFs):
         actions = []
         for i in PDFs:
             actions.append({
                 "_index": indexName,
-                "_source": {"path": i.path, "content": i.text, "timestamp": datetime.now()}
+                "_source": {"path": i.path, "content": i.text,
+                            "timestamp": datetime.now()}
             })
         helpers.bulk(self.es, actions)
 
@@ -49,4 +52,5 @@ class ElasticSearch:
         return self.es.search(body=body,
                               index=indexName,
                               filter_path=['hits.total', 'hits.hits._score',
-                                           'hits.hits._source.path', 'hits.hits.highlight'])
+                                           'hits.hits._source.path',
+                                           'hits.hits.highlight'])

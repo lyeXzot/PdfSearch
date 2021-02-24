@@ -1,6 +1,7 @@
-import model_tab
-from model_tab import ModelTab
 import tkinter as tk
+
+from Gui.model_tab import ModelTab
+
 
 class ConcordanceTab(ModelTab):
     def __init__(self, master):

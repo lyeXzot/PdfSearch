@@ -1,12 +1,13 @@
 import tkinter as tk
-from tkinter.ttk import Notebook, Label, Style, Progressbar, Button
-from tkinter import messagebox as msg, filedialog,Frame
-from tkinter.font import BOLD, Font
+from tkinter import Frame
+from tkinter.ttk import Label, Button
+
 
 class ModelTab(Frame):
     """
     所有Tab的模型
     """
+
     def __init__(self, master):
         super().__init__(master)
         self.set_bottom_frame()
@@ -33,7 +34,7 @@ class ModelTab(Frame):
         self.search_by_regex_cb = tk.Checkbutton(
             self.bottom_frame, variable=self.search_by_regex, text="Regex")
 
-        self.bottom_frame.pack(side=tk.BOTTOM,pady=(0,20))
+        self.bottom_frame.pack(side=tk.BOTTOM, pady=(0, 20))
 
         self.search_term_text.grid(row=0, column=0)
         self.search_by_words_cb.grid(row=0, column=1)
@@ -87,7 +88,8 @@ class ModelTab(Frame):
         self.central_frame = Frame(self)
 
         self.vertical_scrollbar = tk.Scrollbar(
-            self.central_frame, orient="vertical", command=self.scroll_all_text_vertical)
+            self.central_frame, orient="vertical",
+            command=self.scroll_all_text_vertical)
 
         self.vertical_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -129,7 +131,7 @@ class ModelTab(Frame):
             # from mouse MouseWheel
             event = args[0]
             if event.delta:
-                move = -1*(event.delta/120)
+                move = -1 * (event.delta / 120)
             else:
                 if event.num == 5:
                     move = 1

@@ -1,9 +1,11 @@
 import tkinter as tk
 
+
 class CentralWindow(tk.Toplevel):
     """
     让弹出窗口居中显示
     """
+
     def __init__(self, master, my_height=80):
         super().__init__()
         self.master = master
