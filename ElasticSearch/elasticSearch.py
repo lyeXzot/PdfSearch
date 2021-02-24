@@ -29,11 +29,12 @@ class ElasticSearch:
             })
         helpers.bulk(self.es, actions)
 
-    def search(self, indexName, keyword):
+    def search(self, indexName, keyword, search_type):
+        assert search_type in ['term', 'match', 'wildcard']
         body = json.dumps(
             {
                 "query": {
-                    "fuzzy": {
+                    search_type: {
                         "content": keyword
                     }
                 },

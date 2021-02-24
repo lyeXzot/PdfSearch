@@ -4,9 +4,10 @@ from ElasticSearch.elasticSearch import ElasticSearch
 import time
 
 
-def search(root_path, keyword):
+def search(root_path, keyword, search_type):
     """
     搜索root_path下pdf文件
+    :param search_type:
     :param root_path:
     :param keyword:
     :return:
@@ -24,12 +25,13 @@ def search(root_path, keyword):
     es.create(Name)
     es.bulk(Name, PDFs)
     time.sleep(1)
-    result = es.search(Name, keyword)
-    print(result)
+    result = es.search(Name, keyword, search_type)
     es.delete(Name)
     return result
 
 
 if __name__ == '__main__':
     root = '..\\resource'
-    search(root, "cluster")
+    print(search(root, "cluster", "term"))
+    print(search(root, "Cluster", "match"))
+    print(search(root, "cluste*", "wildcard"))
