@@ -10,6 +10,8 @@ from Gui.word_list_tab import WordListTab
 from Pdf.util import get_all_PdfPath
 from pdfminer.high_level import extract_text
 
+from Statistics.statistics import statistics
+
 
 class PdfSearch(tk.Tk):
     def __init__(self):
@@ -118,11 +120,26 @@ class PdfSearch(tk.Tk):
         for i in result:
             self.section_select.insert("end", i)
 
+        # 词频
+        temp_list = []
+        for i in range(100):
+            temp_list.append(str(i))
+        self.tab.central_texts['Rank'].insert(tk.END ,'\n'.join(temp_list))
+
+        freq_result = statistics(temp)
+        freq = ''
+        word = ''
+        for i, j in freq_result:
+            word += (str(i)+'\n')
+            freq += (str(j)+'\n')
+        self.tab.central_texts['Freq'].insert(tk.END, freq)
+        self.tab.central_texts['Word'].insert(tk.END, word)
+
     def save_output(self):
         pass
 
     def start_search(self, event=None):
-        pass
+        self.concordance_tab.central_texts['Hit'].insert(tk.END, "test")
 
     def stop_search(self, event=None):
         pass
@@ -134,12 +151,16 @@ class PdfSearch(tk.Tk):
         AboutPdfSearch(self)
 
     def view_file(self, event=None):
+
+        # 内容
         self.notebook.select(self.file_view_tab)
         self.file_view_tab.file_view_hits.set(1)
-        temp = self.section_select.curselection()
-        path = self.section_select.get(temp)
+        path = self.section_select.get(self.section_select.curselection())
         content = extract_text(path)
-        self.file_view_tab.central_texts[''].insert("end", "test")
+        self.file_view_tab.central_texts[''].delete(1.0, tk.END)
+        self.file_view_tab.central_texts[''].insert(tk.END, content)
+
+
 
 
 if __name__ == "__main__":

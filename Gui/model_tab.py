@@ -108,7 +108,7 @@ class ModelTab(Frame):
         new_label = Label(new_frame, text=title,
                           style="blue.TLabel", width=width)
         new_text = tk.Text(new_frame, width=width)
-        new_text.configure(state="disabled")
+        # new_text.configure(state="disabled")
         new_text.configure(yscrollcommand=self.vertical_scrollbar.set)
         new_horizontal_scrollbar = tk.Scrollbar(
             new_frame, orient="horizontal", command=self.scroll_text_horizontal)
