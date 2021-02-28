@@ -7,6 +7,9 @@ from Gui.concordance_tab import ConcordanceTab
 from Gui.file_view_tab import FileViewTab
 from Gui.word_list_tab import WordListTab
 
+from Pdf.util import get_all_PdfPath
+from pdfminer.high_level import extract_text
+
 
 class PdfSearch(tk.Tk):
     def __init__(self):
@@ -104,12 +107,16 @@ class PdfSearch(tk.Tk):
             msg.showerror("Wrong Filetype", "Please select a pdf file")
             temp_file = filedialog.askopenfilename()
 
-        if (temp_file):
+        if temp_file:
             self.path.set(temp_file)
 
     def open_dir(self, event=None):
         temp = filedialog.askdirectory(mustexist=True)
         self.path.set(temp)
+
+        result = get_all_PdfPath(temp)
+        for i in result:
+            self.section_select.insert("end", i)
 
     def save_output(self):
         pass
@@ -127,7 +134,12 @@ class PdfSearch(tk.Tk):
         AboutPdfSearch(self)
 
     def view_file(self, event=None):
-        pass
+        self.notebook.select(self.file_view_tab)
+        self.file_view_tab.file_view_hits.set(1)
+        temp = self.section_select.curselection()
+        path = self.section_select.get(temp)
+        content = extract_text(path)
+        self.file_view_tab.central_texts[''].insert("end", "test")
 
 
 if __name__ == "__main__":

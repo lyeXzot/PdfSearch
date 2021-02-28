@@ -1,5 +1,4 @@
-import model_tab
-from model_tab import ModelTab
+from Gui.model_tab import ModelTab
 import tkinter as tk
 
 
