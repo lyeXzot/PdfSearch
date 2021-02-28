@@ -11,6 +11,7 @@ from Pdf.util import get_all_PdfPath
 from pdfminer.high_level import extract_text
 
 from Statistics.statistics import statistics
+from Search.search import search
 
 
 class PdfSearch(tk.Tk):
@@ -120,6 +121,8 @@ class PdfSearch(tk.Tk):
         for i in result:
             self.section_select.insert("end", i)
 
+        self.total_file_num_var.set(len(result))
+
         # 词频
         temp_list = []
         for i in range(100):
@@ -139,7 +142,35 @@ class PdfSearch(tk.Tk):
         pass
 
     def start_search(self, event=None):
-        self.concordance_tab.central_texts['Hit'].insert(tk.END, "test")
+        if self.concordance_tab.search_by_words.get():
+            result = search(self.path.get(), self.concordance_tab.search_term_entry.get(), "term")
+            print(result)
+        elif self.concordance_tab.search_by_case.get():
+            result = search(self.path.get(), self.concordance_tab.search_term_entry.get(), "match")
+        elif self.concordance_tab.search_by_regex.get():
+            result = search(self.path.get(), self.concordance_tab.search_term_entry.get(), "wildcard")
+        else:
+            return
+
+        num = result['hits']['total']['value']
+        temp = ''
+        highlight = ''
+        path = ''
+        for i in range(num):
+            temp += (str(i)+'\n')
+        for i in result['hits']['hits']:
+            tt = '||'.join(i['highlight']['content'])
+            # tt.replace('\n', ' ')
+            # print(tt)
+            highlight += (tt+'\n')
+            path += (i['_source']['path']+'\n')
+        # 用字符串，错位问题
+        self.concordance_tab.central_texts['Hit'].delete(1.0, tk.END)
+        self.concordance_tab.central_texts['KWIC'].delete(1.0, tk.END)
+        self.concordance_tab.central_texts['File'].delete(1.0, tk.END)
+        self.concordance_tab.central_texts['Hit'].insert(tk.END, temp)
+        self.concordance_tab.central_texts['KWIC'].insert(tk.END, highlight)
+        self.concordance_tab.central_texts['File'].insert(tk.END, path)
 
     def stop_search(self, event=None):
         pass
