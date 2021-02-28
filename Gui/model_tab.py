@@ -125,7 +125,7 @@ class ModelTab(Frame):
 
     def scroll_all_text_vertical(self, *args):
         try:  # from scrollbar
-            for text in self.central_texts:
+            for text in self.central_texts.values():
                 text.yview_moveto(args[1])
         except IndexError:
             # from mouse MouseWheel
@@ -138,7 +138,7 @@ class ModelTab(Frame):
                 else:
                     move = -1
 
-            for text in self.central_texts:
+            for text in self.central_texts.values():
                 text.yview_scroll(int(move), "units")
 
         return "break"

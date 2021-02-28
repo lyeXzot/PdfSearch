@@ -88,11 +88,11 @@ class PdfSearch(tk.Tk):
 
         self.concordance_tab = ConcordanceTab(self)
         self.file_view_tab = FileViewTab(self)
-        self.tab = WordListTab(self)
+        self.word_list_tab = WordListTab(self)
 
         self.notebook.add(self.concordance_tab, text="Concordance")
         self.notebook.add(self.file_view_tab, text="File View")
-        self.notebook.add(self.tab, text="Word List")
+        self.notebook.add(self.word_list_tab, text="Word List")
 
         self.notebook.pack(fill=tk.BOTH, expand=1)
 
@@ -119,21 +119,28 @@ class PdfSearch(tk.Tk):
         result = get_all_PdfPath(temp)
         for i in result:
             self.section_select.insert("end", i)
+        self.total_file_num_var.set(str(len(result)))
 
         # 词频
         temp_list = []
-        for i in range(100):
-            temp_list.append(str(i))
-        self.tab.central_texts['Rank'].insert(tk.END ,'\n'.join(temp_list))
+        # for i in range(100):
+        #    temp_list.append(str(i))
+        # self.tab.central_texts['Rank'].insert(tk.END ,'\n'.join(temp_list))
 
         freq_result = statistics(temp)
         freq = ''
         word = ''
+        line_number = 0
         for i, j in freq_result:
-            word += (str(i)+'\n')
-            freq += (str(j)+'\n')
-        self.tab.central_texts['Freq'].insert(tk.END, freq)
-        self.tab.central_texts['Word'].insert(tk.END, word)
+            word += (str(i) + '\n')
+            freq += (str(j) + '\n')
+            line_number += 1
+        line_number_string = "\n".join(str(no + 1) for no in range(line_number))
+        self.word_list_tab.central_texts['Freq'].insert(tk.END, freq)
+        self.word_list_tab.central_texts['Word'].insert(tk.END, word)
+        self.word_list_tab.central_texts['Rank'].insert(tk.END,
+                                                        line_number_string)
+        self.word_list_tab.word_types.set(line_number)
 
     def save_output(self):
         pass
@@ -159,8 +166,6 @@ class PdfSearch(tk.Tk):
         content = extract_text(path)
         self.file_view_tab.central_texts[''].delete(1.0, tk.END)
         self.file_view_tab.central_texts[''].insert(tk.END, content)
-
-
 
 
 if __name__ == "__main__":
