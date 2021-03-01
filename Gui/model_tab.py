@@ -107,11 +107,13 @@ class ModelTab(Frame):
 
         new_label = Label(new_frame, text=title,
                           style="blue.TLabel", width=width)
-        new_text = tk.Text(new_frame, width=width)
-        # new_text.configure(state="disabled")
-        new_text.configure(yscrollcommand=self.vertical_scrollbar.set)
         new_horizontal_scrollbar = tk.Scrollbar(
-            new_frame, orient="horizontal", command=self.scroll_text_horizontal)
+            new_frame, orient="horizontal")
+        new_text = tk.Text(new_frame, width=width, wrap=tk.NONE,
+                           xscrollcommand=new_horizontal_scrollbar.set)
+        new_horizontal_scrollbar.config(command=new_text.xview)
+        new_text.configure(state="disabled")
+        new_text.configure(yscrollcommand=self.vertical_scrollbar.set)
 
         new_label.pack(side=tk.TOP, fill=tk.X)
         new_horizontal_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
@@ -119,9 +121,6 @@ class ModelTab(Frame):
         new_frame.pack(side=tk.LEFT, fill=tk.Y, padx=3, pady=5)
 
         return new_text
-
-    def scroll_text_horizontal(self, *args):  # TODO
-        pass
 
     def scroll_all_text_vertical(self, *args):
         try:  # from scrollbar

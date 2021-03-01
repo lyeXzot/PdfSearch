@@ -11,13 +11,16 @@ from Pdf.util import get_all_PdfPath
 from pdfminer.high_level import extract_text
 
 from Statistics.statistics import statistics
+import ntpath
 from Search.search import search
+from Gui.model_tab import ModelTab
 
 
 class PdfSearch(tk.Tk):
     def __init__(self):
         super().__init__()
 
+        self.path = tk.StringVar(self, value='')
         self.path = tk.StringVar(self, value='')
         self.total_file_num_var = tk.StringVar(self, value='0')
 
@@ -65,11 +68,6 @@ class PdfSearch(tk.Tk):
             self.left_frame, text="Corpus Files", style="Bold10.TLabel")
         self.corpus_label.pack(side=tk.TOP)
 
-        self.section_select = tk.Listbox(self.left_frame, selectmode=tk.SINGLE)
-        self.section_select.configure(exportselection=False)
-        self.section_select.pack(fill=tk.Y, expand=0.8)
-        self.section_select.bind("<<ListboxSelect>>", self.view_file)
-
         self.total_num_label = Label(
             self.left_frame, text="Total No.", style="Bold10.TLabel")
         self.total_num_value_label = Label(
@@ -83,6 +81,32 @@ class PdfSearch(tk.Tk):
         self.file_processed_label.pack(side=tk.BOTTOM, fill=tk.X)
         self.total_num_value_label.pack(side=tk.BOTTOM, fill=tk.X)
         self.total_num_label.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.section_select_frame = Frame(self.left_frame)
+        self.section_select_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=1,
+                                       padx=10, pady=10)
+
+        self.section_select_horizontal_scrollbar = tk.Scrollbar(
+            self.section_select_frame, orient="horizontal")
+        self.section_select_horizontal_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.section_select_vertical_scrollbar = tk.Scrollbar(
+            self.section_select_frame, orient="vertical"
+        )
+        self.section_select_vertical_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.section_select = tk.Listbox(self.section_select_frame,
+                                         selectmode=tk.SINGLE,
+                                         xscrollcommand=self.section_select_horizontal_scrollbar.set,
+                                         yscrollcommand=self.section_select_vertical_scrollbar.set)
+        self.section_select.configure(exportselection=False)
+        self.section_select.pack(fill=tk.Y, expand=0.8, padx=5)
+        self.section_select.bind("<<ListboxSelect>>", self.view_file)
+
+        self.section_select_horizontal_scrollbar[
+            'command'] = self.section_select.xview
+        self.section_select_vertical_scrollbar[
+            'command'] = self.section_select.yview
 
         # inside right_frame
         self.notebook = Notebook(self.right_frame)
@@ -104,33 +128,14 @@ class PdfSearch(tk.Tk):
         self.bind("<Control-d>", self.open_dir)
         self.bind("<Control-s>", self.save_output)
 
-    def open_file(self, event=None):
-        temp_file = filedialog.askopenfilename()
-        while temp_file and not temp_file.endswith(".pdf"):
-            msg.showerror("Wrong Filetype", "Please select a pdf file")
-            temp_file = filedialog.askopenfilename()
-
-        if temp_file:
-            self.path.set(temp_file)
-
-    def open_dir(self, event=None):
-        temp = filedialog.askdirectory(mustexist=True)
-        self.path.set(temp)
-
-        result = get_all_PdfPath(temp)
-        for i in result:
-            self.section_select.insert("end", i)
-        self.total_file_num_var.set(str(len(result)))
-
-        self.total_file_num_var.set(len(result))
-
+    def update_word_list(self):
         # 词频
         temp_list = []
         # for i in range(100):
         #    temp_list.append(str(i))
         # self.tab.central_texts['Rank'].insert(tk.END ,'\n'.join(temp_list))
 
-        freq_result = statistics(temp)
+        freq_result = statistics(self.path.get())
         freq = ''
         word = ''
         line_number = 0
@@ -139,23 +144,57 @@ class PdfSearch(tk.Tk):
             freq += (str(j) + '\n')
             line_number += 1
         line_number_string = "\n".join(str(no + 1) for no in range(line_number))
+        self.enable_text_in_modelTab(self.word_list_tab)
         self.word_list_tab.central_texts['Freq'].insert(tk.END, freq)
         self.word_list_tab.central_texts['Word'].insert(tk.END, word)
         self.word_list_tab.central_texts['Rank'].insert(tk.END,
                                                         line_number_string)
+        self.disable_text_in_modelTab(self.word_list_tab)
         self.word_list_tab.word_types.set(line_number)
+
+    def open_file(self, event=None):
+        temp_file = filedialog.askopenfilename()
+        while temp_file and not temp_file.endswith(".pdf"):
+            msg.showerror("Wrong Filetype", "Please select a pdf file")
+            temp_file = filedialog.askopenfilename()
+
+        if temp_file:
+            self.path.set(temp_file)
+            self.total_file_num_var.set("1")
+            self.clear_listbox()
+            self.update_word_list()
+
+    def open_dir(self, event=None):
+        temp = filedialog.askdirectory(mustexist=True)
+        self.path.set(temp)
+
+        result = get_all_PdfPath(temp)
+        self.clear_listbox()
+        for i in result:
+            self.section_select.insert("end", i)
+        self.total_file_num_var.set(str(len(result)))
+        self.update_word_list()
+
+    def clear_listbox(self):
+        self.section_select.delete(0, 'end')
 
     def save_output(self):
         pass
 
     def start_search(self, event=None):
         if self.concordance_tab.search_by_words.get():
-            result = search(self.path.get(), self.concordance_tab.search_term_entry.get(), "term")
+            result = search(self.path.get(),
+                            self.concordance_tab.search_term_entry.get(),
+                            "term")
             print(result)
         elif self.concordance_tab.search_by_case.get():
-            result = search(self.path.get(), self.concordance_tab.search_term_entry.get(), "match")
+            result = search(self.path.get(),
+                            self.concordance_tab.search_term_entry.get(),
+                            "match")
         elif self.concordance_tab.search_by_regex.get():
-            result = search(self.path.get(), self.concordance_tab.search_term_entry.get(), "wildcard")
+            result = search(self.path.get(),
+                            self.concordance_tab.search_term_entry.get(),
+                            "wildcard")
         else:
             return
 
@@ -164,23 +203,38 @@ class PdfSearch(tk.Tk):
         highlight = ''
         path = ''
         for i in range(num):
-            temp += (str(i)+'\n')
+            temp += (str(i) + '\n')
         for i in result['hits']['hits']:
             tt = '||'.join(i['highlight']['content'])
             # tt.replace('\n', ' ')
             # print(tt)
-            highlight += (tt+'\n')
-            path += (i['_source']['path']+'\n')
+            highlight += (tt + '\n')
+            path += (i['_source']['path'] + '\n')
         # 用字符串，错位问题
-        self.concordance_tab.central_texts['Hit'].delete(1.0, tk.END)
-        self.concordance_tab.central_texts['KWIC'].delete(1.0, tk.END)
-        self.concordance_tab.central_texts['File'].delete(1.0, tk.END)
+        self.enable_text_in_modelTab(self.concordance_tab)
+        self.clear_text_in_modelTab(self.concordance_tab)
         self.concordance_tab.central_texts['Hit'].insert(tk.END, temp)
         self.concordance_tab.central_texts['KWIC'].insert(tk.END, highlight)
         self.concordance_tab.central_texts['File'].insert(tk.END, path)
+        self.disable_text_in_modelTab(self.concordance_tab)
 
     def stop_search(self, event=None):
         pass
+
+    def enable_text_in_modelTab(self, modelTab):
+        if isinstance(modelTab, ModelTab):
+            for text in modelTab.central_texts.values():
+                text.configure(state="normal")
+
+    def disable_text_in_modelTab(self, modelTab):
+        if isinstance(modelTab, ModelTab):
+            for text in modelTab.central_texts.values():
+                text.configure(state='disabled')
+
+    def clear_text_in_modelTab(self,modelTab):
+        if isinstance(modelTab,ModelTab):
+            for text in modelTab.central_texts.values():
+                text.delete(1.0,tk.END)
 
     def sort_search(self, event=None):
         pass
@@ -189,14 +243,16 @@ class PdfSearch(tk.Tk):
         AboutPdfSearch(self)
 
     def view_file(self, event=None):
-
         # 内容
         self.notebook.select(self.file_view_tab)
         self.file_view_tab.file_view_hits.set(1)
         path = self.section_select.get(self.section_select.curselection())
         content = extract_text(path)
+        self.file_view_tab.file_str.set(path)
+        self.enable_text_in_modelTab(self.file_view_tab)
         self.file_view_tab.central_texts[''].delete(1.0, tk.END)
         self.file_view_tab.central_texts[''].insert(tk.END, content)
+        self.disable_text_in_modelTab(self.file_view_tab)
 
 
 if __name__ == "__main__":
