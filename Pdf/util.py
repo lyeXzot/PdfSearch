@@ -12,9 +12,9 @@ def get_all_PdfPath(root):
     result = []
     for i in os.listdir(root):
         path = os.path.join(root, i)
-        if os.path.isdir(path):                             # 目录，递归获取
+        if os.path.isdir(path):  # 目录，递归获取
             result.extend(get_all_PdfPath(path))
-        elif os.path.isfile(path) and path[-3:] == 'pdf':   # 为pdf文件
+        elif os.path.isfile(path) and path[-3:] == 'pdf':  # 为pdf文件
             result.append(path)
     return result
 
@@ -28,5 +28,7 @@ def get_PDFs(root):
     PDFs = []
     for pdf_path in get_all_PdfPath(root):
         # 读取pdf文件内容,生成PDF对象
-        PDFs.append(PDF(extract_text(pdf_path), pdf_path))
+        text = extract_text(pdf_path)
+        text = text.replace("\n", " ")
+        PDFs.append(PDF(text, pdf_path))
     return PDFs

@@ -162,7 +162,7 @@ class PdfSearch(tk.Tk):
             self.path.set(temp_file)
             self.total_file_num_var.set("1")
             self.clear_listbox()
-            self.update_word_list()
+            self.update_word_list() #TODO:not dir
 
     def open_dir(self, event=None):
         temp = filedialog.askdirectory(mustexist=True)
