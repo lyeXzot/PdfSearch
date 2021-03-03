@@ -18,3 +18,4 @@ class ConcordanceTab(ModelTab):
             "File": 30
         }
         self.set_central_frame(temp_central)
+        self.central_texts['KWIC'].tag_config("hits", background="yellow")

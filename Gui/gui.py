@@ -76,7 +76,8 @@ class PdfSearch(tk.Tk):
         self.file_processed_label = Label(
             self.left_frame, text="File Processed", style="Bold10.TLabel")
         self.file_processed_progressbar = Progressbar(
-            self.left_frame, orient=tk.HORIZONTAL, style="TProgressbar")
+            self.left_frame, orient=tk.HORIZONTAL, style="TProgressbar",
+            mode='determinate')
         self.file_processed_progressbar.pack(side=tk.BOTTOM, fill=tk.X)
         self.file_processed_label.pack(side=tk.BOTTOM, fill=tk.X)
         self.total_num_value_label.pack(side=tk.BOTTOM, fill=tk.X)
@@ -162,7 +163,7 @@ class PdfSearch(tk.Tk):
             self.path.set(temp_file)
             self.total_file_num_var.set("1")
             self.clear_listbox()
-            self.update_word_list() #TODO:not dir
+            self.update_word_list()  # TODO:not dir
 
     def open_dir(self, event=None):
         temp = filedialog.askdirectory(mustexist=True)
@@ -198,25 +199,53 @@ class PdfSearch(tk.Tk):
         else:
             return
 
-        num = result['hits']['total']['value']
+        line_num = 0
+        # num = result['hits']['total']['value']
         temp = ''
         highlight = ''
         path = ''
-        for i in range(num):
-            temp += (str(i) + '\n')
+        to_add_tag_list = []
         for i in result['hits']['hits']:
-            tt = '||'.join(i['highlight']['content'])
-            # tt.replace('\n', ' ')
-            # print(tt)
-            highlight += (tt + '\n')
-            path += (i['_source']['path'] + '\n')
-        # 用字符串，错位问题
+            for hits in i['highlight']['content']:
+                line_num += 1
+                self.add_index_to_tag(hits, to_add_tag_list, line_num)
+                hits = hits.replace("<em>", "")
+                hits = hits.replace("</em>", "")
+                highlight += hits + '\n'
+                # tt = '||'.join(i['highlight']['content'])
+                # highlight += (tt + '\n')
+                path += (i['_source']['path'] + '\n')
+        for i in range(line_num):
+            temp += (str(i + 1) + '\n')
+        self.concordance_tab.concordance_hits.set(line_num)
         self.enable_text_in_modelTab(self.concordance_tab)
         self.clear_text_in_modelTab(self.concordance_tab)
         self.concordance_tab.central_texts['Hit'].insert(tk.END, temp)
         self.concordance_tab.central_texts['KWIC'].insert(tk.END, highlight)
+        self.add_tags(to_add_tag_list,
+                      self.concordance_tab.central_texts['KWIC'], "hits")
         self.concordance_tab.central_texts['File'].insert(tk.END, path)
         self.disable_text_in_modelTab(self.concordance_tab)
+
+    def add_index_to_tag(self, str_hits, to_add_tag_list, line_number):
+        em_end = 0
+        em_found = 0
+
+        while 1:
+            em_start = str_hits.find("<em>", em_end)
+            em_end = str_hits.find("</em>", em_start)
+            if em_start == -1:
+                return
+            real_start = em_start - em_found * 9
+            real_end = real_start + em_end - em_start - 4
+            to_add_tag_list.append(str(line_number) + "." + str(real_start))
+            to_add_tag_list.append(str(line_number) + "." + str(real_end))
+            em_found += 1
+
+    def add_tags(self, to_add_tags_list, text, title):
+        for i in range(len(to_add_tags_list) // 2):
+            text.tag_add(title, to_add_tags_list[2 * i],
+                         to_add_tags_list[2 * i + 1])
 
     def stop_search(self, event=None):
         pass
@@ -231,10 +260,10 @@ class PdfSearch(tk.Tk):
             for text in modelTab.central_texts.values():
                 text.configure(state='disabled')
 
-    def clear_text_in_modelTab(self,modelTab):
-        if isinstance(modelTab,ModelTab):
+    def clear_text_in_modelTab(self, modelTab):
+        if isinstance(modelTab, ModelTab):
             for text in modelTab.central_texts.values():
-                text.delete(1.0,tk.END)
+                text.delete(1.0, tk.END)
 
     def sort_search(self, event=None):
         pass

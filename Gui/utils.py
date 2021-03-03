@@ -23,3 +23,6 @@ class CentralWindow(tk.Toplevel):
 
         geometry = "{}x{}+{}+{}".format(my_width, my_height, pos_x, pos_y)
         self.geometry(geometry)
+
+
+
