@@ -1,6 +1,8 @@
 from elasticsearch import Elasticsearch as Es
 from datetime import datetime
-from Pdf.pdf import PDF
+from elasticsearch import helpers
+
+import json
 
 
 class ElasticSearch:
@@ -12,19 +14,43 @@ class ElasticSearch:
     def create(self, indexName):
         self.es.indices.create(index=indexName, ignore=400)
 
-    def add(self, indexName, pdf):
-        if not isinstance(pdf, PDF):
-            raise TypeError("参数错误")
-        self.es.index(index=indexName, body={"path": pdf.path, "content": pdf.text, "timestamp": datetime.now()})
+    def delete(self, indexName):
+        self.es.indices.delete(index=indexName, ignore=400)
 
-    def search(self, indexName):
-        return self.es.search(index=indexName)
+    def upload(self, indexName, pdf):
+        self.es.index(index=indexName,
+                      body={"path": pdf.path, "content": pdf.text,
+                            "timestamp": datetime.now()})
 
+    def bulk(self, indexName, PDFs):
+        actions = []
+        for i in PDFs:
+            actions.append({
+                "_index": indexName,
+                "_source": {"path": i.path, "content": i.text,
+                            "timestamp": datetime.now()}
+            })
+        helpers.bulk(self.es, actions)
 
-ins_es = ElasticSearch()
-Name = "temp-index"
-# ins_es.create(Name)
-# for i in range(10):
-#     ins_es.add(Name, PDF("path"+str(i), "context"+str(i)))
-print(ins_es.search(Name))
-# print(ins_es.es.search(index=Name, filter_path=['hits.hits._*']))
+    def search(self, indexName, keyword, search_type):
+        assert search_type in ['term', 'match', 'wildcard']
+        body = json.dumps(
+            {
+                "query": {
+                    search_type: {
+                        "content": keyword
+                    }
+                },
+                "highlight": {
+                    "fields": {
+                        "content": {}
+                    }
+                }
+            }
+        )
+
+        return self.es.search(body=body,
+                              index=indexName,
+                              filter_path=['hits.total', 'hits.hits._score',
+                                           'hits.hits._source.path',
+                                           'hits.hits.highlight'])

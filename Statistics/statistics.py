@@ -25,9 +25,10 @@ def statistics(path):
     text = map(lambda x: nltk.PorterStemmer().stem(x), text)
     # 统计词频
     result = nltk.FreqDist(text).most_common(100)
-    for k, v in result:
+    return result
+
+
+if __name__ == '__main__':
+    root = '..\\resource'
+    for k, v in statistics(root):
         print("%s %d" % (k, v))
-
-
-root = '..\\resource'
-statistics(root)
